@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=100%, initial-scale=1.0">
+    <title>Handy Dandy Tools</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', -apple-system, sans-serif; 
+            margin: 0; padding: 0;
+            background: linear-gradient(135deg, #fef9e7 0%, #f0e6d2 50%, #e8d9c6 100%);
+            min-height: 100vh; color: #4a4a4a;
+        }
+        #app { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        #header { 
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            padding: 25px 30px; border-radius: 24px; box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.3);
+            display: flex; justify-content: space-between; align-items: center;
+            position: relative;
+        }
+        h1 { font-size: 2.2em; font-weight: 700;
+            background: linear-gradient(135deg, #d4a574, #e6b98a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 0; text-shadow: 0 2px 4px rgba(212,165,116,0.3);
+        }
+        
+        .input-group { display: flex; gap: 12px; align-items: center; }
+        #urlInput { padding: 16px 24px; width: 380px; border: 2px solid #f0e6d2; border-radius: 16px; font-size: 16px;
+            background: rgba(255,255,255,0.8); transition: all 0.3s ease; backdrop-filter: blur(10px);
+        }
+        #urlInput:focus { outline: none; border-color: #d4a574; box-shadow: 0 0 0 4px rgba(212,165,116,0.1); transform: translateY(-2px); }
+        #addBtn { padding: 16px 28px; background: linear-gradient(135deg, #d4a574, #e6b98a); color: white; border: none; border-radius: 16px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(212,165,116,0.3); }
+        #addBtn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(212,165,116,0.4); }
+        
+        #tabs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.7); border-radius: 20px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.4); }
+        .tab { background: linear-gradient(135deg, #fffaf0, #f5e9d8); padding: 14px 24px; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; font-weight: 500; border: 2px solid transparent; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+        .tab::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: left 0.5s; }
+        .tab:hover::before { left: 100%; }
+        .tab.active { background: linear-gradient(135deg, #d4a574, #e6b98a); color: white; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212,165,116,0.3); }
+        .tab:hover:not(.active) { transform: translateY(-2px); border-color: #d4a574; box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        
+        #iframe { width: 100%; height: 70vh; border: none; background: white; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); transition: all 0.3s ease; }
+        
+        /* Profile & Login Dropdown */
+        .profile-container { position: relative; }
+        #profileBtn { 
+            width: 50px; height: 50px; border-radius: 50%; 
+            background: linear-gradient(135deg, #d4a574, #e6b98a); 
+            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212,165,116,0.3);
+        }
+        #profileBtn:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(212,165,116,0.4); }
+        #profileBtn.logged-in { background: linear-gradient(135deg, #4a90e2, #357abd); }
+        
+        #loginDropdown {
+            position: absolute; top: 60px; right: 0; 
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.3);
+            padding: 20px; min-width: 280px; display: none; z-index: 1000;
+        }
+        #loginDropdown.show { display: block; }
+        .g_id_signin { margin: 0 auto; display: block !important; }
+        
+        #userInfo { background: linear-gradient(135deg, #fff3e0, #ffe0b2); padding: 12px 20px; border-radius: 20px; font-weight: 500; box-shadow: 0 4px 15px rgba(255,193,7,0.2); margin: 0 12px; font-size: 14px; }
+        
+        #settings { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); padding: 30px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); margin-top: 20px; border: 1px solid rgba(255,255,255,0.3); display: none; }
+        button:not(.g_id_signin) { padding: 12px 24px; background: linear-gradient(135deg, #d4a574, #e6b98a); color: white; border: none; border-radius: 16px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; margin: 0 8px 8px 0; box-shadow: 0 4px 15px rgba(212,165,116,0.3); }
+        button:not(.g_id_signin):hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212,165,116,0.4); }
+        .danger { background: linear-gradient(135deg, #e67e5c, #f39c6d); box-shadow: 0 4px 15px rgba(230,126,92,0.3); }
+        .danger:hover { box-shadow: 0 8px 25px rgba(230,126,92,0.4); }
+        
+        .hidden { display: none; }
+        @media (max-width: 768px) { #header { flex-direction: column; gap: 20px; text-align: center; } #urlInput { width: 100%; max-width: 300px; } h1 { font-size: 1.8em; } }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="header">
+            <h1>🛠️ Handy Dandy Tools</h1>
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div class="input-group">
+                    <input type="text" id="urlInput" placeholder="Enter URL (e.g., google.com)">
+                    <button id="addBtn">➕ Add Tab</button>
+                </div>
+                <div id="userInfo" class="hidden"></div>
+                <div class="profile-container">
+                    <button id="profileBtn">👤</button>
+                    <div id="loginDropdown">
+                        <div class="g_id_signin" 
+                             data-size="medium" 
+                             data-type="standard" 
+                             data-theme="outline" 
+                             data-text="signin_with" 
+                             data-shape="rectangular" 
+                             data-logo_alignment="left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tabs"></div>
+        <iframe id="iframe" src="about:blank" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+        <div id="settings">
+            <h3 style="margin: 0 0 20px 0; color: #4a4a4a;">Account Settings</h3>
+            <p style="font-size: 16px; margin: 0 0 20px 0;">Current: <strong id="currentEmail"></strong></p>
+            <button id="logoutBtn">🚪 Logout</button>
+            <button id="deleteAccount" class="danger">🗑️ Delete Account</button>
+            <button id="switchAccount">🔄 Switch Account</button>
+            <button id="closeSettings">✕ Close</button>
+        </div>
+    </div>
+
+    <script>
+        // === YOUR CONFIGS - REPLACE THESE ===
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "YOUR_APP_ID"
+        };
+        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"; // Exact Client ID from Google Cloud Console
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let tabs = [];
+        let unsubscribe = null;
+        let currentTabIndex = -1;
+
+        // Initialize Google Sign-In
+        window.handleGoogleSignIn = async (response) => {
+            try {
+                const idToken = response.credential;
+                const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+                await auth.signInWithCredential(credential);
+                document.getElementById('loginDropdown').classList.remove('show');
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed: ' + error.message);
+            }
+        };
+
+        // Profile button toggle
+        document.getElementById('profileBtn').onclick = (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('loginDropdown');
+            dropdown.classList.toggle('show');
+        };
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            document.getElementById('loginDropdown').classList.remove('show');
+        });
+
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            const profileBtn = document.getElementById('profileBtn');
+            const userInfo = document.getElementById('userInfo');
+            
+            if (user) {
+                currentUser = user;
+                profileBtn.textContent = '👤';
+                profileBtn.classList.add('logged-in');
+                profileBtn.title = 'Logged in';
+                userInfo.innerHTML = `${user.displayName?.split(' ')[0] || 'User'} (${user.email})`;
+                userInfo.classList.remove('hidden');
+                document.getElementById('currentEmail').textContent = user.email;
+                document.getElementById('settings').style.display = 'block';
+                await loadTabs();
+            } else {
+                currentUser = null;
+                profileBtn.textContent = '👋';
+                profileBtn.classList.remove('logged-in');
+                profileBtn.title = 'Login';
+                userInfo.classList.add('hidden');
+                tabs = [];
+                renderTabs();
+                document.getElementById('iframe').src = 'about:blank';
+                if (unsubscribe) unsubscribe();
+            }
+        });
+
+        async function loadTabs() {
+            if (!currentUser) return;
+            unsubscribe = db.collection('users').doc(currentUser.uid).collection('tabs')
+                .orderBy('created', 'desc')
+                .onSnapshot((snapshot) => {
+                    tabs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderTabs();
+                });
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tabs');
+            container.innerHTML = '';
+            tabs.forEach((tab, index) => {
+                const btn = document.createElement('div');
+                btn.className = `tab ${index === currentTabIndex ? 'active' : ''}`;
+                btn.textContent = tab.name || tab.url.replace(/^https?:\/\//, '').split('/')[0];
+                btn.onclick = () => openTab(tab, index);
+                btn.title = tab.url;
+                container.appendChild(btn);
+            });
+        }
+
+        function openTab(tab, index) {
+            document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === index));
+            currentTabIndex = index;
+            document.getElementById('iframe').src = tab.url;
+        }
+
+        // Add Tab
+        document.getElementById('addBtn').onclick = async () => {
+            const urlInput = document.getElementById('urlInput').value.trim();
+            if (!urlInput || !currentUser) return alert('Please login and enter a URL');
+            
+            let url = urlInput.startsWith('http') ? urlInput : 'https://' + urlInput;
+            const tabData = {
+                url, name: url.replace(/^https?:\/\//, '').split('/')[0],
+                created: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).collection('tabs').add(tabData);
+                document.getElementById('urlInput').value = '';
+            } catch (error) {
+                alert('Failed to save tab');
+            }
+        };
+
+        // Settings
+        document.getElementById('settingsBtn')?.addEventListener('click', () => {
+            document.getElementById('settings').style.display = 'block';
+        });
+        
+        document.getElementById('logoutBtn').onclick = async () => {
+            if (unsubscribe) unsubscribe();
+            await auth.signOut();
+        };
+        
+        document.getElementById('deleteAccount').onclick = async () => {
+            if (confirm('Delete ALL tabs permanently?')) {
+                await db.collection('users').doc(currentUser.uid).delete();
+                await auth.signOut();
+            }
+        };
+        
+        document.getElementById('closeSettings').onclick = () => {
+            document.getElementById('settings').style.display = 'none';
+        };
+
+        // Enter key
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('addBtn').click();
+        });
+
+        // Initialize on load
+        window.onload = () => {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleSignIn
+            });
+            google.accounts.id.renderButton(
+                document.querySelector('.g_id_signin'),
+                { theme: 'outline', size: 'medium', type: 'standard' }
+            );
+        };
+    </script>
+</body>
+</html>
