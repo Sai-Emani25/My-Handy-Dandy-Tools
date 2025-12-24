@@ -1,0 +1,618 @@
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        min-height: 100vh;
+        color: #e8e8e8;
+        overflow-x: hidden;
+    }
+
+    /* Import Inter font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    /* Sidebar */
+    #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 300px;
+        height: 100vh;
+        background: linear-gradient(180deg, rgba(30, 30, 46, 0.98) 0%, rgba(20, 20, 35, 0.98) 100%);
+        backdrop-filter: blur(20px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+    }
+
+    #sidebarToggle {
+        position: absolute;
+        right: 15px;
+        top: 25px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1001;
+    }
+
+    #sidebarToggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* When sidebar is collapsed */
+    #sidebar.collapsed {
+        transform: translateX(-240px);
+        /* Leave 60px visible for the button */
+    }
+
+    #sidebar.collapsed #sidebarToggle {
+        right: 10px;
+        /* Adjust position when collapsed if needed */
+        background: transparent;
+    }
+
+    /* Hide other sidebar content when collapsed */
+    #sidebar.collapsed .sidebar-header h2,
+    #sidebar.collapsed .user-section,
+    #sidebar.collapsed .worksheets-section,
+    #sidebar.collapsed #newWorksheetBtn {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+    }
+
+    .sidebar-header {
+        padding: 30px 25px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h2 {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .user-section {
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #userProfile {
+        display: none;
+    }
+
+    #userProfile.active {
+        display: block;
+    }
+
+    .user-info {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #a78bfa;
+        margin-bottom: 5px;
+    }
+
+    .user-email {
+        font-size: 13px;
+        color: #94a3b8;
+    }
+
+    #logoutBtn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    #logoutBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+    }
+
+    .worksheets-section {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .section-title {
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: #94a3b8;
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .worksheet-item {
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .worksheet-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    .worksheet-item.active {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
+        border-color: #8b5cf6;
+    }
+
+    .worksheet-name {
+        font-weight: 500;
+        color: #e8e8e8;
+    }
+
+    .worksheet-actions {
+        display: flex;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .worksheet-item:hover .worksheet-actions {
+        opacity: 1;
+    }
+
+    .icon-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+
+    #newWorksheetBtn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+        border: 2px dashed rgba(139, 92, 246, 0.5);
+        color: #a78bfa;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+
+    #newWorksheetBtn:hover {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
+        border-color: #8b5cf6;
+        transform: translateY(-2px);
+    }
+
+    /* Main Content */
+    #mainContent {
+        margin-left: 300px;
+        min-height: 100vh;
+        padding: 20px;
+        transition: margin-left 0.3s ease;
+    }
+
+    #sidebar.collapsed~#mainContent {
+        margin-left: 60px;
+        /* Adjust for the visible strip */
+    }
+
+    #header {
+        background: rgba(30, 30, 46, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 25px 30px;
+        border-radius: 24px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 60px;
+    }
+
+    h1 {
+        font-size: 2.2em;
+        font-weight: 700;
+        background: linear-gradient(135deg, #a78bfa, #c4b5fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+    }
+
+    .current-worksheet-info {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px 18px;
+        border-radius: 12px;
+        display: inline-block;
+        margin-bottom: 20px;
+        border-left: 4px solid #8b5cf6;
+    }
+
+    .current-worksheet-label {
+        font-size: 12px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .current-worksheet-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #a78bfa;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    #urlInput {
+        padding: 16px 24px;
+        width: 400px;
+        max-width: 100%;
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        border-radius: 16px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    #urlInput::placeholder {
+        color: #94a3b8;
+    }
+
+    #urlInput:focus {
+        outline: none;
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+        transform: translateY(-2px);
+    }
+
+    #addBtn {
+        padding: 16px 28px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        white-space: nowrap;
+    }
+
+    #addBtn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
+    }
+
+    #addBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    #manualSaveBtn {
+        width: 100%;
+        padding: 12px;
+        /* Keep the green color */
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+        border: 2px dashed rgba(16, 185, 129, 0.5);
+        color: #34d399;
+        /* Green text */
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: none;
+    }
+
+    #manualSaveBtn:hover {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+        border-color: #10b981;
+        transform: translateY(-2px);
+        box-shadow: none;
+    }
+
+    #manualSaveBtn:active {
+        transform: translateY(0);
+    }
+
+    #manualSaveBtn:disabled {
+        opacity: 0.5;
+        background: transparent;
+        border-color: #4b5563;
+        color: #6b7280;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    #manualSaveBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    #manualSaveBtn:active {
+        transform: translateY(0);
+    }
+
+    #manualSaveBtn:disabled {
+        background: #4b5563;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+
+    #tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(30, 30, 46, 0.7);
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        min-height: 80px;
+    }
+
+    .empty-state {
+        width: 100%;
+        text-align: center;
+        padding: 40px;
+        color: #94a3b8;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+    }
+
+    .tab {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+        padding: 12px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        border: 2px solid transparent;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        font-size: 14px;
+        color: #e8e8e8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tab::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.5s;
+    }
+
+    .tab:hover::before {
+        left: 100%;
+    }
+
+    .tab.active {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+
+    .tab:hover:not(.active) {
+        transform: translateY(-2px);
+        border-color: #8b5cf6;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .tab-delete {
+        margin-left: 8px;
+        opacity: 0.6;
+        transition: opacity 0.3s ease;
+    }
+
+    .tab:hover .tab-delete {
+        opacity: 1;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: linear-gradient(135deg, #1e1e2e, #16213e);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        min-width: 400px;
+        max-width: 500px;
+    }
+
+    .modal-header {
+        font-size: 1.5em;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #a78bfa;
+    }
+
+    .modal-input {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        border-radius: 12px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        margin-bottom: 20px;
+    }
+
+    .modal-input:focus {
+        outline: none;
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .modal-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .modal-btn-primary {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .modal-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .modal-btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e8e8e8;
+    }
+
+    .modal-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Google Sign In Container */
+    #gButtonContainer {
+        display: none;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    #gButtonContainer.active {
+        display: block;
+    }
+
+    .google-signin-text {
+        font-size: 14px;
+        color: #94a3b8;
+        margin-bottom: 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        #sidebar {
+            transform: translateX(-300px);
+        }
+
+        #sidebar.open {
+            transform: translateX(0);
+        }
+
+        #sidebarToggle {
+            left: 10px;
+        }
+
+        #sidebar.open+#sidebarToggle {
+            left: 310px;
+        }
+
+        #mainContent {
+            margin-left: 0;
+        }
+
+        #urlInput {
+            width: 100%;
+        }
+
+        .modal-content {
+            min-width: auto;
+            width: 90%;
+        }
+    }
