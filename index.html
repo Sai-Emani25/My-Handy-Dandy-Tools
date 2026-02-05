@@ -25,10 +25,7 @@
 
     <!-- User Section -->
     <div class="user-section">
-      <div id="gButtonContainer">
-        <div class="google-signin-text">Sign in to save your worksheets</div>
-      </div>
-
+      <div id="gButtonContainer"></div>
       <div id="userProfile">
         <div class="user-info">
           <div class="user-name" id="userName"></div>
@@ -46,9 +43,6 @@
       <button id="manualSaveBtn" disabled>💾 Save Changes</button>
     </div>
   </div>
-
-  <!-- Sidebar Toggle -->
-  <button id="sidebarToggle">☰</button>
 
   <!-- Main Content -->
   <div id="mainContent">
@@ -73,6 +67,44 @@
       </div>
     </div>
   </div>
+
+  <!-- Updated Export and Import Buttons -->
+  <div class="export-import-container">
+  <button id="exportDataBtn" class="export-btn">📤 Export</button>
+  <input type="file" id="importDataInput" style="display: none;" accept="application/json" />
+  <button id="importDataBtn" class="import-btn">📥 Import</button>
+</div>
+
+<style>
+  .export-import-container {
+    position: absolute;
+    top: 25px;
+    right: 30px;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    z-index: 100;
+  }
+
+  .export-btn, .import-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+  }
+
+  .export-btn:hover, .import-btn:hover {
+    background: linear-gradient(135deg, #5558e3, #7c4ee4);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+  }
+</style>
 
   <!-- Modals -->
   <div id="newWorksheetModal" class="modal">

@@ -33,15 +33,20 @@ Your application has been upgraded to use **Google Drive API** instead of Fireba
    - App name: **Handy Dandy Tools**
    - User support email: (your email)
    - Developer contact: (your email)
-   - Save and continue (you can skip optional fields)
+   - Save and continue (you can skip Scopes)
+   - **Test Users**: Click "Add Users" and add your own email address (IMPORTANT!)
+   - Save and continue
 4. Back in Credentials, click **Create Credentials** > **OAuth client ID**
 5. Application type: **Web application**
 6. Name: **Handy Dandy Tools**
-7. Add Authorized JavaScript origins:
-   - `http://localhost:8000`
-   - (Add your production domain later)
-8. Click **Create**
-9. Copy the **Client ID** (looks like: `123456789-abc.apps.googleusercontent.com`)
+8. Add Authorized JavaScript origins:
+   - `http://localhost:8000` (for local development)
+   - `https://handydandytools.netlify.app` (or your actual production domain)
+9. Add Authorized redirect URIs:
+   - `https://handydandytools.netlify.app`
+   - `https://handydandytools.netlify.app/`
+10. Click **Create**
+11. Copy the **Client ID** (looks like: `123456789-abc.apps.googleusercontent.com`)
 
 ### Step 4: Configure Your Application
 
