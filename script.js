@@ -418,6 +418,49 @@ document.getElementById("importDataBtn").addEventListener('click', () => {
   document.getElementById("importDataInput").click();
 });
 
+// Add link function
+async function addTab() {
+  if (!currentWorksheet || !currentUser) return;
+
+  const input = document.getElementById("urlInput");
+  let url = input.value.trim();
+
+  if (!url) {
+    alert("Please enter a URL");
+    return;
+  }
+
+  // Add protocol if missing
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = "https://" + url;
+  }
+
+  try {
+    const newTab = {
+      id: Date.now().toString(),
+      url: url,
+      name: url.replace(/^https?:\/\//, "").split("/")[0],
+      created: new Date().toISOString()
+    };
+
+    tabs.push(newTab);
+
+    const worksheet = worksheets.find(w => w.id === currentWorksheet.id);
+    if (worksheet) {
+      worksheet.tabs = tabs;
+      await saveData({ worksheets });
+      input.value = "";
+      renderTabs();
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add link");
+  }
+}
+
+// Add button click listener
+document.getElementById("addBtn").addEventListener("click", addTab);
+
 // Enter to add
 document.getElementById("urlInput").addEventListener("keypress", e => {
   if (e.key === "Enter") document.getElementById("addBtn").click();
