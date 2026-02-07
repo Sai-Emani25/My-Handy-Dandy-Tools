@@ -420,13 +420,21 @@ document.getElementById("importDataBtn").addEventListener('click', () => {
 
 // Add link function
 async function addTab() {
-  if (!currentWorksheet || !currentUser) return;
-
   const input = document.getElementById("urlInput");
   let url = input.value.trim();
 
   if (!url) {
     alert("Please enter a URL");
+    return;
+  }
+
+  if (!currentWorksheet) {
+    alert("⚠️ Error: Cannot add link without a worksheet!\n\nPlease select an existing worksheet or create a new one first.");
+    return;
+  }
+
+  if (!currentUser) {
+    alert("Please log in first");
     return;
   }
 
